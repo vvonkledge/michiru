@@ -15,7 +15,9 @@
     "dash": true
   },
   "dependencies": {
+    "agents": "^0.0.60",
     "hono": "4.7.5",
+    "hono-agents": "^0.0.50",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },

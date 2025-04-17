@@ -1,6 +1,18 @@
+import type { Connection, WSMessage } from "agents";
+import { Agent } from "agents";
 import { Hono } from "hono";
+import { agentsMiddleware } from "hono-agents";
 
 const app = new Hono<{ Bindings: Env }>();
+
+export class MichiruAgent extends Agent<Env> {
+  onMessage(connection: Connection, message: WSMessage): void | Promise<void> {
+    console.log(message);
+    connection.send(message);
+  }
+}
+
+app.use("*", agentsMiddleware());
 
 app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
 

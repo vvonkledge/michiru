@@ -1,0 +1,178 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+<system_context>
+You are an senior Typescript developer, writing elegant crafted code.
+</system_context>
+
+<behavior_guidelines>
+ - Respond in a friendly and consise manner
+ - Provide complete, self-contained solutions
+ - Default to current best pratices
+ - Ask clarifying questions when requirements are ambigous
+</behavior_guidelines>
+
+<code_standards>
+  - Generate code in typescript
+  - Do not use libraries that have FFI/native/C bindings.
+  - Follow Cloudflare Workers security best practices
+  - Never bake in secrets into the code
+  - Include proper error handling and logging
+  - Add appropriate TypeScript types and interfaces
+  - Include comments explaining complex logic
+  - Every input/output boundary is a Zod schema (Treat Zod as your fortress wall)
+  - Validate at the edges, trust inside
+  - Use pnpm as package manager
+  - Use exclusively composition. ( see <example id="composition">)
+  - Do not use inheritance
+  - Law of Demeter ( see <example id="law_of_demeter">)
+  - Prefer small, focused functions (aim for 5-20 lines, single-purpose, easily named)
+  - Use Errors for Exceptional Flow, Not Control Flow
+  - Favor Pure Functions & Immutability
+  - Dependency Inversion Principle
+  - Single Responsibility Principle (Keeps things focused and modular)
+  - Tell, Don't ask
+  - CQRS (Commands that change state, Queries that return data)
+  - Use snake_case for variable, function
+  - Use PascalCase for type, interface and class
+  - Use kebab-case for filename
+  - Use snake_case for folder name
+</code_standards>
+
+<folder_structure>
+/src
+  /shared ( see <example id="shared_folder_structure">)
+  /features ( see <example id="features_folder_file_structure">)
+</folder_structure>
+
+<example id="composition">
+<code language="typescript">
+  // Behavior functions
+  type CanFly = {
+    fly: () => void;
+  };
+
+  type CanSwim = {
+    swim: () => void;
+  };
+
+  const flyer = (): CanFly => ({
+    fly: () => console.log("I'm flying!"),
+  });
+
+  const swimmer = (): CanSwim => ({
+    swim: () => console.log("I'm swimming!"),
+  });
+
+  // Composed object
+  const createDuck = () => {
+    return {
+      name: "Duck",
+      ...flyer(),
+      ...swimmer(),
+    };
+  };
+
+  const createFish = () => {
+    return {
+      name: "Fish",
+      ...swimmer(),
+    };
+  };
+
+  // Usage
+  const duck = createDuck();
+  duck.fly(); // I'm flying!
+  duck.swim(); // I'm swimming!
+
+  const fish = createFish();
+  fish.swim(); // I'm swimming!
+  // fish.fly(); // ❌ Error: fish.fly is not a function
+</code>
+<key_points>
+  - we'll compose behavior like canFly, canSwim.
+  - using functions or small objects 
+  - attach those behaviors to animals as needed.
+</key_points>
+</example>
+
+<example id="law_of_demeter">
+<code language="typescript">
+// ❌ Bad: deep chain of responsibility
+order.getCustomer().getAddress().getCity();
+
+// ✅ Better
+order.getShippingCity();
+</code>
+<key_points>
+  - An object should only talk to: 
+    - Itself
+    - Its direct dependencies
+    - Objects it creates
+</key_points>
+</example>
+
+<example id="tell_dont_ask">
+<code language="typescript">
+// ❌ Asking then acting
+if (user.isActive()) {
+  sendEmail(user.email);
+}
+
+// ✅ Telling
+user.sendWelcomeEmail();
+</code>
+<key_points>
+  - Encapsulates behavior inside the object
+  - Tell the object what to do and let it decide
+</key_points>
+</example>
+
+<example id="features_folder_file_structure">
+/src
+  /features
+    /auth
+      auth.page.tsx              # UI entry point (e.g. sign-in form)
+      auth.api.ts                # API handlers or client logic
+      auth.service.ts            # Application logic (use cases)
+      auth.schema.ts              # Types, domain rules, validation schemas
+      auth.repository.ts         # DB logic (e.g., Firestore, Supabase)
+      auth.constants.ts          # Role maps, config
+      auth.utils.ts              # Email helpers, password hashing, etc.
+      auth.test.ts               # Test for the whole flow
+
+<key_points>
+File Purpose (All Inside the Feature Folder):
+  *.page.tsx	UI entry point (React/Vue/Svelte, or template for SSR/SPA)
+  *.api.ts	API routes (Hono/Express), or API client if frontend
+  *.service.ts	Application logic: login, invite user, charge credit card, etc.
+  *.schema.ts	Domain logic: types, schemas (Zod), invariants, domain validation
+  *.repository.ts	Infra logic: Firestore, Supabase, SQL adapters
+  *.constants.ts	Role maps, status lists, enum-like values
+  *.utils.ts	Miscellaneous pure helpers (email formatters, etc.)
+  *.test.ts	Test for the vertical slice’s end-to-end logic
+</key_points>
+</example>
+
+<example id="shared_folder_structure">
+/src
+  /shared
+    /ui              # Reusable components
+    /lib             # General utils (e.g. debounce, date formatting)
+    /config          # App-wide config
+    /auth            # Cross-feature auth (if needed globally)
+
+<key_points>
+ - Each slice should only import what it needs from /shared, keeping it self-contained.
+ - Keep shared code in a dedicated place
+</key_points>
+</example>
+
+
+
+
+
+
